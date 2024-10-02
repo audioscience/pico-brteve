@@ -70,12 +70,12 @@ class BrtEveModule(BrtEveCommon, BrtEveMoviePlayer): # pylint: disable=too-many-
         self.prev_touching = 0
         self.inputs = 0
 
-    def init(self, resolution = "", touch = ""):
+    def init(self, resolution = "", touch = "", clk_external=True):
         """Start up EVE and light up LCD"""
 
         print("Initialing for MCU " + self.eve.eve_type)
         self.eve.register(self)
-        self.coldstart()
+        self.coldstart(clk_external=clk_external)
 
         # Programming Guide 2.4: Initialization Sequence during Boot Up
         time_start = time.monotonic()
@@ -108,6 +108,8 @@ class BrtEveModule(BrtEveCommon, BrtEveMoviePlayer): # pylint: disable=too-many-
             self.setup_1024x600()
         if resolution == "480x272":
             self.setup_480x272()
+        if resolution == "480x128":
+            self.setup_480x128()
         if resolution == "640x480":
             self.setup_640x480()
         if resolution == "320x480":
@@ -149,7 +151,7 @@ class BrtEveModule(BrtEveCommon, BrtEveMoviePlayer): # pylint: disable=too-many-
             elif self.eve.EVE_SYSCLK_DEFAULT == freq:
                 self.host_cmd(0x61)
 
-    def coldstart(self):
+    def coldstart(self, clk_external=True):
         """Start up EVE"""
         freq = self.eve.EVE_SYSCLK_60M #60Mhz is default for FT8xx
         if ( self.eve.eve_type == 'bt815_6' or
@@ -157,7 +159,8 @@ class BrtEveModule(BrtEveCommon, BrtEveMoviePlayer): # pylint: disable=too-many-
             freq = self.eve.EVE_SYSCLK_72M #72Mhz is default for BT8xx
 
         self.eve_system_clk(freq)
-        self.host_cmd(0x44)         # Select PLL input from external clock source
+        if clk_external:
+            self.host_cmd(0x44)         # Select PLL input from external clock source
         self.host_cmd(0x00)         # Wake up
         self.host_cmd(0x68)         # Core reset
 
@@ -601,6 +604,34 @@ class BrtEveModule(BrtEveCommon, BrtEveMoviePlayer): # pylint: disable=too-many-
             (self.eve.REG_VSYNC1, 10),
             (self.eve.REG_VSYNC0, 0),
             (self.eve.REG_PCLK, 5),
+        ]
+        for (adress, value) in setup:
+            self.cmd_regwrite(adress, value)
+
+    def setup_480x128(self):
+        """Default setting for LCD WQVGA 480x128"""
+        self.Clear()
+        self.swap()
+        # Timings from: <https://github.com/crystalfontz/CFA480128Ex-039Tx/blob/master/CFA10099/CFA480128Ex_039Tx.h>
+        setup = [
+            (self.eve.REG_DITHER, 0),
+            (self.eve.REG_CSPREAD, 0),
+            (self.eve.REG_PCLK_POL, 1),
+
+            (self.eve.REG_HCYCLE, 1042),
+            (self.eve.REG_HOFFSET, 41),
+            (self.eve.REG_HSIZE, 480),
+
+            (self.eve.REG_HSYNC1, 35),
+            (self.eve.REG_HSYNC0, 24),
+
+            (self.eve.REG_VCYCLE, 137),
+            (self.eve.REG_VOFFSET, 8),
+            (self.eve.REG_VSIZE, 128),
+
+            (self.eve.REG_VSYNC1, 5),
+            (self.eve.REG_VSYNC0, 4),
+            (self.eve.REG_PCLK, 7),
         ]
         for (adress, value) in setup:
             self.cmd_regwrite(adress, value)
