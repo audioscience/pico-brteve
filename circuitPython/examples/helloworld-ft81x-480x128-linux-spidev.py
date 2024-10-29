@@ -1,5 +1,5 @@
 from brteve.brt_eve_ft81x import BrtEve
-from brteve.brt_eve_rp2040 import BrtEveRP2040
+from brteve.brt_eve_linux_spidev import BrtEveRP2040
 
 host = BrtEveRP2040()
 eve = BrtEve(host)
