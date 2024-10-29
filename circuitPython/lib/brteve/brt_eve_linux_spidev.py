@@ -56,7 +56,7 @@ class BrtEveRP2040():
     @spilock
     def transfer(self, write_data, bytes_to_read = 0):
         """ Transfer data via SPI"""
-        return bytes(self.spi.xfer2(list(write_data) + [0x00]*bytes_to_read))[-bytes_to_read:]
+        return bytes(self.spi.xfer3(list(write_data) + [0x00]*bytes_to_read))[-bytes_to_read:]
 
     def write_ili9488(self,cmd,data):
         """ Write command and data to ili9488 LCD"""
