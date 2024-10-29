@@ -49,7 +49,7 @@ class BrtEveRP2040():
         print(gpio.line_get_value(line_handle))
         time.sleep(0.1)
         spi = spidev.SpiDev()
-        spi.open(0, 0)
+        spi.open(1, 0)
         spi.max_speed_hz = 10000000
         self.spi = spi
 
