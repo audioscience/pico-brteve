@@ -3,7 +3,7 @@ import sys
 import struct
 import time
 import spidev
-from asi import gpiod_utils as gpio
+#from asi import gpiod_utils as gpio
 
 def spilock(func):
     """ Delegate function, to lock and unlocki SPI"""
@@ -35,7 +35,7 @@ class BrtEveRP2040():
 
     @spilock
     def _setup_spi(self):
-        """ Setup SPI interface"""
+        """ Setup SPI interface
         res = gpio.chip_open('/dev/gpiochip0')
         print(res)
         line_handle = gpio.chip_get_line(res, 24)
@@ -47,10 +47,11 @@ class BrtEveRP2040():
         res = gpio.line_set_value(line_handle, 1)
         print(res)
         print(gpio.line_get_value(line_handle))
+        """
         time.sleep(0.1)
         spi = spidev.SpiDev()
         spi.open(1, 0)
-        spi.max_speed_hz = 10000000
+        spi.max_speed_hz = 10000000 #SGT was 10MHz
         self.spi = spi
 
     @spilock
