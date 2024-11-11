@@ -109,6 +109,7 @@ class BrtEveModule(BrtEveCommon, BrtEveMoviePlayer): # pylint: disable=too-many-
         if resolution == "480x272":
             self.setup_480x272()
         if resolution == "480x128":
+            print("Setup 480x128")
             self.setup_480x128()
         if resolution == "640x480":
             self.setup_640x480()
@@ -117,7 +118,10 @@ class BrtEveModule(BrtEveCommon, BrtEveMoviePlayer): # pylint: disable=too-many-
             self.setup_320x480()
 
         if touch != "":
+            print("Setup touch", touch)
             self.setup_touch(touch)
+        else:
+            print("No touch")
 
         self.lcd_width = self.rd32(self.eve.REG_HSIZE)
         self.lcd_height = self.rd32(self.eve.REG_VSIZE)
@@ -417,24 +421,24 @@ class BrtEveModule(BrtEveCommon, BrtEveMoviePlayer): # pylint: disable=too-many-
             self.wr8(self.eve.REG_TOUCH_MODE, self.eve.TMODE_FRAME)
             self.wr8(self.eve.REG_CTOUCH_EXTENDED, 1)
 
-            # print(len(goodix_setup_bin))
-            # self.write(bytes(goodix_setup_bin))
+            print(len(goodix_setup_bin)) # SGT
+            self.write(bytes(goodix_setup_bin)) #SGT
             self.finish()
 
             self.wr8(self.eve.REG_CPURESET, 2)
-            # self.wr16(self.eve.REG_TOUCH_CONFIG, 0x05d0)
-            self.wr16(self.eve.REG_TOUCH_CONFIG, 0x0381) # Address 0x38 , FocalTech FT5426 ?
+            self.wr16(self.eve.REG_TOUCH_CONFIG, 0x05d0) # SGT
+            # self.wr16(self.eve.REG_TOUCH_CONFIG, 0x0381) # Address 0x38 , FocalTech FT5426 ? #SGT
 
-            # gpio_dir = self.rd16(self.eve.REG_GPIOX_DIR)
-            # self.wr16(self.eve.REG_GPIOX_DIR, gpio_dir | 0xF)
-            # gpio_val = self.rd16(self.eve.REG_GPIOX)
-            # self.wr16(self.eve.REG_GPIOX, gpio_val & 0xFFF0)
+            gpio_dir = self.rd16(self.eve.REG_GPIOX_DIR) # SGT
+            self.wr16(self.eve.REG_GPIOX_DIR, gpio_dir | 0xF) # SGT
+            gpio_val = self.rd16(self.eve.REG_GPIOX) # SGT
+            self.wr16(self.eve.REG_GPIOX, gpio_val & 0xFFF0) # SGT
 
             time.sleep(0.1)
             self.wr8(self.eve.REG_CPURESET, 0)
             time.sleep(0.1)
-            # self.wr16(self.eve.REG_GPIOX, gpio_val | 0xF)
-            # self.wr16(self.eve.REG_GPIOX_DIR, gpio_dir & 0xFFF0)
+            self.wr16(self.eve.REG_GPIOX, gpio_val | 0xF) # SGT
+            self.wr16(self.eve.REG_GPIOX_DIR, gpio_dir & 0xFFF0) # SGT
 
 
 
