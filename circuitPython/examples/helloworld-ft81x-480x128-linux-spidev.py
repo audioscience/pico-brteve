@@ -3,10 +3,13 @@ import time
 from brteve.brt_eve_ft81x import BrtEve
 from brteve.brt_eve_linux_spidev import BrtEveRP2040
 
+print("Eve init")
 host = BrtEveRP2040()
 eve = BrtEve(host)
-# eve.init(resolution="480x128", clk_external=False, touch="goodix")
-eve.init(resolution="480x128", clk_external=False, touch="focaltech")
+eve.init(resolution="480x128", clk_external=False, touch="goodix")
+# eve.init(resolution="480x128", clk_external=False, touch="focaltech")
+#eve.init(resolution="480x128", clk_external=False, touch="")
+print("init done")
 
 # eve.calibrate()
 # eve.swap()
