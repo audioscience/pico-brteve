@@ -3,6 +3,9 @@ import time
 import struct
 from collections import namedtuple
 
+if not hasattr(time, 'monotonic'):
+    time.monotonic = lambda: time.ticks_ms() / 1000.0
+
 from .brt_eve_movie_player import BrtEveMoviePlayer
 from .brt_eve_common import BrtEveCommon, align4
 

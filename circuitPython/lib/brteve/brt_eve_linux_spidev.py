@@ -2,7 +2,18 @@
 import sys
 import struct
 import time
-import spidev
+
+try:
+    import micropython
+    micropython = True
+except ImportError:
+    micropython = False
+
+if micropython:
+    from asi import spidev
+else:
+    import spidev2 as spidev
+
 from asi import gpiod_utils as gpio
 
 def spilock(func):
@@ -48,15 +59,14 @@ class BrtEveRP2040():
         print(res)
         print(gpio.line_get_value(line_handle))
         time.sleep(0.1)
-        spi = spidev.SpiDev()
-        spi.open(1, 0)
-        spi.max_speed_hz = 10000000
+        spi = spidev.SPIBus('/dev/spidev0.0', 'w+b', speed_hz=10_000_000)
         self.spi = spi
 
     @spilock
     def transfer(self, write_data, bytes_to_read = 0):
         """ Transfer data via SPI"""
-        return bytes(self.spi.xfer3(list(write_data) + [0x00]*bytes_to_read))[-bytes_to_read:]
+        # return bytes(self.spi.xfer3(list(write_data) + [0x00]*bytes_to_read))[-bytes_to_read:]
+        return self.spi.transfer(tx_buf=write_data + b'\x00'*bytes_to_read, rx_buf=bytearray(len(write_data)+bytes_to_read))[-bytes_to_read:]
 
     def write_ili9488(self,cmd,data):
         """ Write command and data to ili9488 LCD"""
