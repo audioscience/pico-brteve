@@ -727,6 +727,154 @@ class BrtEveModule(BrtEveCommon, BrtEveMoviePlayer): # pylint: disable=too-many-
         self.Clear()
         self.swap()
         # Timings from: <https://github.com/crystalfontz/CFA480128Ex-039Tx/blob/master/CFA10099/CFA480128Ex_039Tx.h>
+        # Timings updated from ST7282 which is used by KingTech
+        # Timing based on AN_336 FT8xx - Selecting an LCD Display
+        """
+        TH = 531 # total line length in pixels, from ST7282 datasheet, was 1042
+        THD = 480 # visible part of line
+        X = 1
+        THP = 4
+        THB = 43 - THP
+        THF = TH - THD - THB - (THP - X)
+        print("THF =", THF)
+
+        TV = 140
+        TVD = 128
+        Y = 1
+        TVP = 4
+        TVB = 12 - TVP
+        TVF = TV - TVD - TVB - (TVP - Y)
+        print("TVF =", TVF)
+    
+        setup = [
+            (self.eve.REG_DITHER, 0),
+            (self.eve.REG_CSPREAD, 0),
+            (self.eve.REG_PCLK_POL, 1),
+
+            (self.eve.REG_HCYCLE, TH), 
+            (self.eve.REG_HOFFSET, (THF-X) + THP + THB),
+            (self.eve.REG_HSIZE, THD),
+
+            (self.eve.REG_HSYNC1, (THF-X) + THP),
+            (self.eve.REG_HSYNC0, (THF-X)),
+
+            (self.eve.REG_VCYCLE, TV),
+            (self.eve.REG_VOFFSET, (TVF-Y) + TVP + TVB ),
+            (self.eve.REG_VSIZE, TVD),
+
+            (self.eve.REG_VSYNC1, (TVF-Y)),
+            (self.eve.REG_VSYNC0, (TVF-Y)+TVP),
+            (self.eve.REG_PCLK, 7),
+        ]
+        """
+        """
+        TH = 598
+        THD = 480
+        THP = 4
+        THB = 43-THP
+        THF = TH - THD - THP - THB 
+        X = 10
+        Hcycle = THD+THF+THP+THB
+        Hoffset = (THF-X)+THP+THB
+        Hsync1 = (THF-X)+THP
+        Hsync0 = THF-X
+        Hsize = THD
+        print()
+        print("Hcycle =", Hcycle)
+        print("Hsync0 =", Hsync0)
+        print("Hsync1 =", Hsync1)
+        print("Hoffset =", Hoffset)
+        print("Hsize =", Hsize)
+        print("Thbp =", Hoffset-Hsync0)
+        print("X", X)
+        
+        TVD = 128
+        TVP = 4
+        TVB = 12-TVP
+        Y = 1
+        TVF = 8
+        Vcycle = TVD+TVF+TVB+TVP
+        Voffset = TVF-Y+TVP+TVB
+        Vsync1 = TVF-Y+TVP
+        Vsync0 = TVF-Y
+        Vsize = TVD
+        print()
+        print("Vcycle =", Vcycle)
+        print("Vsync0 =", Vsync0)
+        print("Vsync1 =", Vsync1)
+        print("Voffset =", Voffset)
+        print("Vsize =", Vsize)
+        print()
+     
+        setup = [
+            (self.eve.REG_DITHER, 0),
+            (self.eve.REG_CSPREAD, 0),
+            (self.eve.REG_PCLK_POL, 1),
+
+            (self.eve.REG_HCYCLE, Hcycle), 
+            (self.eve.REG_HOFFSET, Hoffset),
+            (self.eve.REG_HSIZE, Hsize),
+
+            (self.eve.REG_HSYNC1, Hsync1),
+            (self.eve.REG_HSYNC0, Hsync0),
+
+            (self.eve.REG_VCYCLE, Vcycle ),
+            (self.eve.REG_VOFFSET, Voffset),
+            (self.eve.REG_VSIZE, Vsize),
+
+            (self.eve.REG_VSYNC1, Vsync1),
+            (self.eve.REG_VSYNC0, Vsync0),
+            (self.eve.REG_PCLK, 7),
+        ]
+        """
+
+        HPX   =(480)    # Horizontal Pixel Width
+        HSW   =(4)      # Horizontal Sync Width (1~40)
+        HBP   =(43)     # Horizontal Back Porch (must be 43, includes HSW)
+        HFP   =(8)      # Horizontal Front Porch (16~210~354)
+        HPP   =(300)    # Horizontal Pixel Padding (tot=863: 862~1056~1200), EVE needs at least 1 here
+        LCD_WIDTH   =(HPX)
+        LCD_HSYNC0  =(HFP)
+        LCD_HSYNC1  =(HFP+HSW)
+        LCD_HOFFSET =(HFP+HSW+HBP)
+        LCD_HCYCLE  =(HPX+HFP+HSW+HBP+HPP)
+        print("HCYCLE", LCD_HCYCLE)
+
+        VLH   =(128)   # Vertical Line Height
+        VS    =(4)     # Vertical Sync (in lines)  (1~20)
+        VBP   =(12)    # Vertical Back Porch (must be 12, includes VS)
+        VFP   =(8)     # Vertical Front Porch (7~22~147)
+        VLP   =(10)    # Vertical Line Padding (tot=511: 510~525~650), EVE needs at least 1 here
+        LCD_HEIGHT  =(VLH)
+        LCD_VSYNC0  =(VFP)
+        LCD_VSYNC1  =(VFP+VS)
+        LCD_VOFFSET =(VFP+VS+VBP)
+        LCD_VCYCLE  =(VLH+VFP+VS+VBP+VLP)
+        print("VCYCLE", LCD_VCYCLE)
+
+        setup = [
+            (self.eve.REG_DITHER, 0),
+            (self.eve.REG_CSPREAD, 0),
+            (self.eve.REG_PCLK_POL, 1),
+
+            (self.eve.REG_HCYCLE, LCD_HCYCLE),
+            (self.eve.REG_HOFFSET, LCD_HOFFSET),
+            (self.eve.REG_HSIZE, LCD_WIDTH),
+
+            (self.eve.REG_HSYNC1, LCD_HSYNC1),
+            (self.eve.REG_HSYNC0, LCD_HSYNC0),
+
+            (self.eve.REG_VCYCLE, LCD_VCYCLE),
+            (self.eve.REG_VOFFSET, LCD_VOFFSET),
+            (self.eve.REG_VSIZE, LCD_HEIGHT),
+
+            (self.eve.REG_VSYNC1, LCD_VSYNC1),
+            (self.eve.REG_VSYNC0, LCD_VSYNC0),
+            (self.eve.REG_PCLK, 7),
+        ]
+        
+        # partially works with KingTech display
+        """
         setup = [
             (self.eve.REG_DITHER, 0),
             (self.eve.REG_CSPREAD, 0),
@@ -747,6 +895,7 @@ class BrtEveModule(BrtEveCommon, BrtEveMoviePlayer): # pylint: disable=too-many-
             (self.eve.REG_VSYNC0, 4),
             (self.eve.REG_PCLK, 7),
         ]
+        """
         for (adress, value) in setup:
             self.cmd_regwrite(adress, value)
 

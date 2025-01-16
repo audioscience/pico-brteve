@@ -6,12 +6,12 @@ from brteve.brt_eve_linux_spidev import BrtEveRP2040
 print("Eve init")
 host = BrtEveRP2040()
 eve = BrtEve(host)
-eve.init(resolution="480x128", clk_external=False, touch="goodix")
-# eve.init(resolution="480x128", clk_external=False, touch="focaltech")
+# eve.init(resolution="480x128", clk_external=False, touch="goodix")
+eve.init(resolution="480x128", clk_external=False, touch="focaltech")
 #eve.init(resolution="480x128", clk_external=False, touch="")
 print("init done")
 
-# eve.calibrate()
+#eve.calibrate()
 # eve.swap()
 
 eve.ClearColorRGB(0xFF, 0x40, 0x20)
@@ -23,6 +23,7 @@ eve.cmd_text(eve.lcd_width // 30*21, eve.lcd_height // 24*20, 24, eve.OPT_CENTER
 eve.swap()
 while (True):
 	res = eve.get_inputs()
+	#print(res.touch.x, res.touch.y)
 	if res.touch.x > 0 and res.touch.x < 480 and res.touch.y > 0 and res.touch.y < 128:
 		eve.ClearColorRGB(0xFF, 0x40, 0x20)
 		eve.Clear()
@@ -36,5 +37,5 @@ while (True):
 		eve.Point_Size(26)
 		eve.Vertex2f(res.touch.x, res.touch.y)
 		eve.swap()
-		# print(res.touch.x, res.touch.y)
-	time.sleep(.05)
+		print("TOUCH:",res.touch.x, res.touch.y)
+	time.sleep(0.1)

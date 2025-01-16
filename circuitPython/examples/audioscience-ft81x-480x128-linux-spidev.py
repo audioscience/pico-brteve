@@ -20,8 +20,8 @@ def eve_meter(x,y,w,h,level):
 print("Eve init")
 host = BrtEveRP2040()
 eve = BrtEve(host)
-eve.init(resolution="480x128", clk_external=False, touch="goodix")
-#eve.init(resolution="480x128", clk_external=False, touch="focaltech")
+#eve.init(resolution="480x128", clk_external=False, touch="")
+eve.init(resolution="480x128", clk_external=False, touch="focaltech")
 #eve.init(resolution="480x128", clk_external=False, touch="")
 print("init done")
 
@@ -31,9 +31,11 @@ print("init done")
 # set background to black
 eve.ClearColorRGB(0x00, 0x00, 0x00)
 
+
 level = 0
 while(True):
 	eve.Clear()
+	eve.ColorRGB(0xFF, 0xFF, 0xFF)
 	eve.cmd_text(0, 0, 20, 0, "IP: 192.168.1.1")
 	w = 10
 	h = 100
@@ -42,9 +44,9 @@ while(True):
 	level = level -5
 	if(level<-100):
 		level = 0
-
 	time.sleep(0.050)
 	eve.swap()
+	#break
 
 """
 eve.ColorRGB(0xFF, 0xFF, 0xFF)
@@ -54,9 +56,8 @@ eve.ColorRGB(0xFF, 0xFF, 0xFF)
 #eve.End()
 eve.cmd_text(0, 0, 20, 0, "IP: 192.168.1.1")
 eve.cmd_text(0, 10, 21, 0, "IP: 192.168.1.1")
-"""
 # eve.swap()
-"""
+
 while (True):
 	res = eve.get_inputs()
 	if res.touch.x > 0 and res.touch.x < 480 and res.touch.y > 0 and res.touch.y < 128:
